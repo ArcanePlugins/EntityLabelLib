@@ -42,8 +42,8 @@ Thank you to all of the contributors for their work!
 
 > **Ordering:** Date of Contribution
 
-* [[https://github.com/lokka30.png|width=15px]] [@lokka30](https://github.com/lokka30) `🔴 maintainer` `💥 big contributor` `🟢 support` `🔵 code` `🟡 docs` `🟣 concepts`
-- [[https://github.com/DavidTs93.png|width=15px]] [@DavidTs93](https://github.com/DavidTs93) `💥 big contributor` `🔵 code`
+- [@lokka30](https://github.com/lokka30) `🔴 maintainer` `💥 big contributor` `🟢 support` `🔵 code` `🟡 docs` `🟣 concepts`
+- [@DavidTs93](https://github.com/DavidTs93) (aka *DMan16*) `💥 big contributor` `🔵 code`
 
 ## Projects Using ELL
 
