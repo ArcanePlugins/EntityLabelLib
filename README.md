@@ -34,7 +34,7 @@ which are available on all platforms.
 Contributions are warmly welcome! As with all of our other contributors, you will receive credit
 for your kind work.
 
-To learn more about contributing, see [CONTRIBUTING.md](CONTRIBUTING.md].
+To learn more about contributing, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 Thank you to all of the contributors for their work!
 
