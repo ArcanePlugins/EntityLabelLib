@@ -1,0 +1,8 @@
+api-version: "1.18"
+authors: ["lokka30"]
+description: "A library to simplify working with client-side entity label modifications."
+main: "io.github.arcaneplugins.entitylabellib.bukkit.EntityLabelLib"
+name: "EntityLabelLib"
+softdepend: ["ProtocolLib"]
+version: "${project.version}"
+website: "https://github.com/ArcanePlugins/EntityLabelLib/"

@@ -1,0 +1,17 @@
+# Local development and testing files
+local/
+
+# IntelliJ IDEA
+.idea/
+*.iml
+
+# Maven
+target/
+EntityLabelLib-Bukkit/target
+EntityLabelLib-Bukkit-CoreImpl/target
+EntityLabelLib-Bukkit-NmsImpl/target
+EntityLabelLib-Bukkit-ProtocolLibImpl/target
+
+# macOS
+._.git
+.DS_Store
