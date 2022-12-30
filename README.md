@@ -5,6 +5,9 @@
 EntityLabelLib (ELL) allows plugins to easily manipulate client-side nametags/CustomName values of
 entities with support for both sending and intercepting packets. Inside, it contains 
 
+> **Note:** ELS is currently in *alpha* stage. Please check the issue tracker to view what tasks
+> are yet to be completed.
+
 > **Note:** The term 'label' is used instead of
 > 'name-tag' or 'CustomName' to avoid them
 > being confused for the server-side CustomName value of a mob.
