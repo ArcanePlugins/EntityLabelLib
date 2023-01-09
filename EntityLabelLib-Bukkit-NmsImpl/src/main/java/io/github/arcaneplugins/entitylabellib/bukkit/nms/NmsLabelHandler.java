@@ -8,6 +8,7 @@ import io.github.arcaneplugins.entitylabellib.bukkit.nms.util.EntityUtils;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
+import java.lang.reflect.Field;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
@@ -35,6 +36,24 @@ import org.jetbrains.annotations.NotNull;
 
 public class NmsLabelHandler extends LabelHandler implements Listener {
 
+    private static final EntityDataAccessor<Boolean> LABEL_VISIBLE;
+    private static final EntityDataAccessor<Optional<net.minecraft.network.chat.Component>> LABEL;
+
+    static {
+        Class<?> entityClass = net.minecraft.world.entity.Entity.class;
+        try {
+            Field labelVisible = entityClass.getDeclaredField("DATA_CUSTOM_NAME_VISIBLE");
+            labelVisible.setAccessible(true);
+            LABEL_VISIBLE = (EntityDataAccessor<Boolean>) labelVisible.get(null);
+
+            Field label = entityClass.getDeclaredField("DATA_CUSTOM_NAME");
+            label.setAccessible(true);
+            LABEL = (EntityDataAccessor<Optional<net.minecraft.network.chat.Component>>) label.get(null);
+        } catch (IllegalAccessException | NoSuchFieldException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private final String packetChannelHandlerName;
 
     public NmsLabelHandler(
@@ -57,8 +76,13 @@ public class NmsLabelHandler extends LabelHandler implements Listener {
         Objects.requireNonNull(entity, "entity");
         Objects.requireNonNull(labelComponent, "labelComponent");
         Objects.requireNonNull(packetRecipient, "packetRecipient");
-        //TODO
-        throw new RuntimeException("Not implemented");
+        net.minecraft.world.entity.Entity entityHandle = ((CraftEntity) entity).getHandle();
+        ServerPlayer playerHandle = ((CraftPlayer) packetRecipient).getHandle();
+
+        SynchedEntityData entityData = new SynchedEntityData(entityHandle);
+        entityData.set(LABEL_VISIBLE, labelAlwaysVisible);
+        entityData.set(LABEL, Optional.of(ComponentUtils.adventureToNmsComponent(labelComponent)));
+        this.sendEntityData(playerHandle, entityHandle, entityData);
     }
 
     /**
@@ -73,8 +97,13 @@ public class NmsLabelHandler extends LabelHandler implements Listener {
         Objects.requireNonNull(entity, "entity");
         Objects.requireNonNull(labelComponent, "labelComponent");
         Objects.requireNonNull(packetRecipient, "packetRecipient");
-        //TODO
-        throw new RuntimeException("Not implemented");
+
+        net.minecraft.world.entity.Entity entityHandle = ((CraftEntity) entity).getHandle();
+        ServerPlayer playerHandle = ((CraftPlayer) packetRecipient).getHandle();
+
+        SynchedEntityData entityData = new SynchedEntityData(entityHandle);
+        entityData.set(LABEL, Optional.of(ComponentUtils.adventureToNmsComponent(labelComponent)));
+        this.sendEntityData(playerHandle, entityHandle, entityData);
     }
 
     /**
@@ -88,8 +117,27 @@ public class NmsLabelHandler extends LabelHandler implements Listener {
     ) {
         Objects.requireNonNull(entity, "entity");
         Objects.requireNonNull(packetRecipient, "packetRecipient");
-        //TODO
-        throw new RuntimeException("Not implemented");
+
+        net.minecraft.world.entity.Entity entityHandle = ((CraftEntity) entity).getHandle();
+        ServerPlayer playerHandle = ((CraftPlayer) packetRecipient).getHandle();
+
+        SynchedEntityData entityData = new SynchedEntityData(entityHandle);
+        entityData.set(LABEL_VISIBLE, labelAlwaysVisible);
+        this.sendEntityData(playerHandle, entityHandle, entityData);
+    }
+
+    private void sendEntityData(
+            ServerPlayer playerHandle,
+            net.minecraft.world.entity.Entity entityHandle,
+            SynchedEntityData entityData) {
+        List<DataValue<?>> list = entityData.packDirty();
+        if (list == null || list.isEmpty()) {
+            return;
+        }
+        playerHandle.connection.send(new ClientboundSetEntityDataPacket(
+                entityHandle.getId(),
+                list
+        ));
     }
 
     /**
