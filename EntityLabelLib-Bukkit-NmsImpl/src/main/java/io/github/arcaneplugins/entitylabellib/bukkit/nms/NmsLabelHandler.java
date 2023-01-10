@@ -128,7 +128,7 @@ public class NmsLabelHandler extends LabelHandler implements Listener {
 
     private void sendEntityData(
             @Nonnull final ServerPlayer playerHandle,
-            net.minecraft.world.entity.Entity entityHandle,
+            @Nonnull final net.minecraft.world.entity.Entity entityHandle,
             SynchedEntityData entityData) {
         List<DataValue<?>> list = entityData.packDirty();
         if (list == null || list.isEmpty()) {
