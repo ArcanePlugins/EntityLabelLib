@@ -135,8 +135,8 @@ public class NmsLabelHandler extends LabelHandler implements Listener {
             return;
         }
         playerHandle.connection.send(new ClientboundSetEntityDataPacket(
-                entityHandle.getId(),
-                list
+            entityHandle.getId(),
+            list
         ));
     }
 
