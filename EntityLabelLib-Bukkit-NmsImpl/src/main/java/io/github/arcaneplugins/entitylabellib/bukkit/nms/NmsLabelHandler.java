@@ -36,19 +36,24 @@ import org.jetbrains.annotations.NotNull;
 
 public class NmsLabelHandler extends LabelHandler implements Listener {
 
-    private static final EntityDataAccessor<Boolean> LABEL_VISIBLE;
     private static final EntityDataAccessor<Optional<net.minecraft.network.chat.Component>> LABEL;
+    private static final EntityDataAccessor<Boolean> LABEL_VISIBLE;
 
     static {
         Class<?> entityClass = net.minecraft.world.entity.Entity.class;
-        try {
-            Field labelVisible = entityClass.getDeclaredField("DATA_CUSTOM_NAME_VISIBLE");
-            labelVisible.setAccessible(true);
-            LABEL_VISIBLE = (EntityDataAccessor<Boolean>) labelVisible.get(null);
 
-            Field label = entityClass.getDeclaredField("DATA_CUSTOM_NAME");
+        try {
+            //noinspection JavaReflectionMemberAccess
+            Field label = entityClass.getDeclaredField("aM");
             label.setAccessible(true);
+            //noinspection unchecked
             LABEL = (EntityDataAccessor<Optional<net.minecraft.network.chat.Component>>) label.get(null);
+
+            //noinspection JavaReflectionMemberAccess
+            Field labelVisible = entityClass.getDeclaredField("aN");
+            labelVisible.setAccessible(true);
+            //noinspection unchecked
+            LABEL_VISIBLE = (EntityDataAccessor<Boolean>) labelVisible.get(null);
         } catch (IllegalAccessException | NoSuchFieldException e) {
             throw new RuntimeException(e);
         }
