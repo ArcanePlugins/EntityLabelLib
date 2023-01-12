@@ -190,10 +190,13 @@ public class NmsLabelHandler extends LabelHandler implements Listener {
                 }
 
                 Component advCustomName = null;
-                boolean customNameVisible = false;
+                Boolean customNameVisible = null;
 
                 for(final PacketInterceptor interceptor : getRegisteredPacketInterceptors()) {
-                    final LabelResponse response = interceptor.interceptEntityLabelPacket(entity);
+                    final LabelResponse response = interceptor.interceptEntityLabelPacket(
+                        entity,
+                        player
+                    );
 
                     Objects.requireNonNull(response, "response");
 
@@ -204,8 +207,10 @@ public class NmsLabelHandler extends LabelHandler implements Listener {
                         customNameVisible = response.labelAlwaysVisible();
                 }
 
-                final net.minecraft.network.chat.Component customNameNmsComponent =
-                    ComponentUtils.adventureToNmsComponent(advCustomName);
+                if(advCustomName == null && customNameVisible == null) {
+                    super.write(context, message, promise);
+                    return;
+                }
 
                 Integer idxNameComponent = null;
                 Integer idxNameVisible = null;
@@ -216,36 +221,41 @@ public class NmsLabelHandler extends LabelHandler implements Listener {
                     if(item.id() == 3) idxNameVisible = i;
                 }
 
+                if(advCustomName != null) {
+                    final net.minecraft.network.chat.Component customNameNmsComponent =
+                        ComponentUtils.adventureToNmsComponent(advCustomName);
 
-                SynchedEntityData.DataValue<?> dataValueComponent =
-                    new SynchedEntityData.DataItem<>(
-                        new EntityDataAccessor<>(
-                            2,
-                            EntityDataSerializers.OPTIONAL_COMPONENT
-                        ),
-                        Optional.of(customNameNmsComponent)
-                    ).value();
+                    SynchedEntityData.DataValue<?> dataValueComponent =
+                        new SynchedEntityData.DataItem<>(
+                            new EntityDataAccessor<>(
+                                2,
+                                EntityDataSerializers.OPTIONAL_COMPONENT
+                            ),
+                            Optional.of(customNameNmsComponent)
+                        ).value();
 
-                if(idxNameComponent == null) {
-                    items.add(dataValueComponent);
-                } else {
-                    items.set(idxNameComponent, dataValueComponent);
+                    if(idxNameComponent == null) {
+                        items.add(dataValueComponent);
+                    } else {
+                        items.set(idxNameComponent, dataValueComponent);
+                    }
                 }
 
+                if(customNameVisible != null) {
+                    SynchedEntityData.DataValue<Boolean> dataValueVisible =
+                        new SynchedEntityData.DataItem<>(
+                            new EntityDataAccessor<>(
+                                3,
+                                EntityDataSerializers.BOOLEAN
+                            ),
+                            customNameVisible
+                        ).value();
 
-                SynchedEntityData.DataValue<Boolean> dataValueVisible =
-                    new SynchedEntityData.DataItem<>(
-                        new EntityDataAccessor<>(
-                            3,
-                            EntityDataSerializers.BOOLEAN
-                        ),
-                        customNameVisible
-                    ).value();
-
-                if (idxNameVisible == null) {
-                    items.add(dataValueVisible);
-                } else {
-                    items.set(idxNameVisible,dataValueVisible);
+                    if (idxNameVisible == null) {
+                        items.add(dataValueVisible);
+                    } else {
+                        items.set(idxNameVisible, dataValueVisible);
+                    }
                 }
 
                 super.write(context, message, promise);

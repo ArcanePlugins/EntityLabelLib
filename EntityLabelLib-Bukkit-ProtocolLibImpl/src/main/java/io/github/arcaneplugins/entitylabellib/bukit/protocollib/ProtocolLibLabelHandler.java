@@ -139,7 +139,10 @@ public class ProtocolLibLabelHandler extends LabelHandler {
                 Boolean customNameVisible = null;
 
                 for(final PacketInterceptor interceptor : getRegisteredPacketInterceptors()) {
-                    final LabelResponse response = interceptor.interceptEntityLabelPacket(entity);
+                    final LabelResponse response = interceptor.interceptEntityLabelPacket(
+                        entity,
+                        event.getPlayer()
+                    );
 
                     Objects.requireNonNull(response, "response");
 

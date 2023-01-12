@@ -5,6 +5,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
 
 public abstract class PacketInterceptor {
 
@@ -30,7 +31,8 @@ public abstract class PacketInterceptor {
      * @return label response from the packet interceptor implementation
      */
     public abstract @Nonnull LabelResponse interceptEntityLabelPacket(
-        final @Nonnull Entity entity
+        final @Nonnull Entity entity,
+        final @Nonnull Player player
     );
 
     @SuppressWarnings("unused")
