@@ -71,6 +71,7 @@ public class NmsLabelHandler extends LabelHandler implements Listener {
     /**
      * {@inheritDoc}
      */
+    @SuppressWarnings("DuplicatedCode")
     @Override
     public void updateEntityLabel(
         final @NotNull Entity entity,
@@ -81,6 +82,7 @@ public class NmsLabelHandler extends LabelHandler implements Listener {
         Objects.requireNonNull(entity, "entity");
         Objects.requireNonNull(labelComponent, "labelComponent");
         Objects.requireNonNull(packetRecipient, "packetRecipient");
+
         net.minecraft.world.entity.Entity entityHandle = ((CraftEntity) entity).getHandle();
         ServerPlayer playerHandle = ((CraftPlayer) packetRecipient).getHandle();
 
@@ -93,6 +95,7 @@ public class NmsLabelHandler extends LabelHandler implements Listener {
     /**
      * {@inheritDoc}
      */
+    @SuppressWarnings("DuplicatedCode")
     @Override
     public void updateEntityLabel(
         final @NotNull Entity entity,
@@ -188,7 +191,12 @@ public class NmsLabelHandler extends LabelHandler implements Listener {
         Bukkit.getOnlinePlayers().forEach(this::removePacketListenerFromPipeline);
     }
 
-    //TODO Javadoc
+    /**
+     * Listen for {@link PlayerJoinEvent} to add the packet listener to the pipelines of players
+     * who are joining the server.
+     *
+     * @param event event object
+     */
     @EventHandler
     public void onJoin(
         final @NotNull PlayerJoinEvent event
@@ -198,7 +206,11 @@ public class NmsLabelHandler extends LabelHandler implements Listener {
         addPacketListenerToPipeline(event.getPlayer());
     }
 
-    //TODO Javadoc
+    /**
+     * Adds a packet listener to the player's network pipeline.
+     *
+     * @param player player to modify the pipeline of
+     */
     private void addPacketListenerToPipeline(
         final @Nonnull Player player
     ) {
@@ -321,7 +333,11 @@ public class NmsLabelHandler extends LabelHandler implements Listener {
             .addBefore("packet_handler", packetChannelHandlerName, handler);
     }
 
-    //TODO Javadoc
+    /**
+     * Removes any EntityLabelLib packet listeners from the player's pipeline.
+     *
+     * @param player player to modify the pipeline of
+     */
     private void removePacketListenerFromPipeline(
         final @Nonnull Player player
     ) {
@@ -338,7 +354,21 @@ public class NmsLabelHandler extends LabelHandler implements Listener {
         }
     }
 
+    /**
+     * Returns whether this label handler is compatible with the server software it is currently
+     * running on.
+     *
+     * @return compatibility status
+     */
     public static boolean isCompatible() {
+        /*
+        TODO:
+              Check for minimum Minecraft version.
+              At the moment, this is 1.19.3, though we will
+              be working on 1.18.2 compatibility as well.
+              For now, we will just return 'true' so that
+              this label handler is usable in the mean time.
+         */
         return true;
     }
 
