@@ -15,7 +15,6 @@ import com.comphenix.protocol.wrappers.WrappedDataWatcher.WrappedDataWatcherObje
 import com.comphenix.protocol.wrappers.WrappedWatchableObject;
 import io.github.arcaneplugins.entitylabellib.bukkit.LabelHandler;
 import io.github.arcaneplugins.entitylabellib.bukkit.PacketInterceptor;
-import io.github.arcaneplugins.entitylabellib.bukkit.PacketInterceptor.LabelResponse;
 import io.github.arcaneplugins.entitylabellib.bukkit.util.ClassUtils;
 import java.util.ArrayList;
 import java.util.List;
@@ -135,64 +134,61 @@ public class ProtocolLibLabelHandler extends LabelHandler {
                 final WrappedDataWatcherObject optChatFieldWatcher =
                     new WrappedDataWatcherObject(2, chatSerializer);
 
-                Component customName = null;
-                Boolean customNameVisible = null;
-
                 for(final PacketInterceptor interceptor : getRegisteredPacketInterceptors()) {
-                    final LabelResponse response = interceptor.interceptEntityLabelPacket(
-                        entity,
-                        event.getPlayer()
-                    );
+                    interceptor.interceptEntityLabelPacket(entity, event.getPlayer())
+                        .whenComplete((response, error) -> {
+                            Objects.requireNonNull(response, "response");
 
-                    Objects.requireNonNull(response, "response");
+                            Component customName = null;
+                            Boolean customNameVisible = null;
 
-                    if(response.labelComponent() != null)
-                        customName = response.labelComponent();
+                            if(response.labelComponent() != null)
+                                customName = response.labelComponent();
 
-                    if(response.labelAlwaysVisible() != null)
-                        customNameVisible = response.labelAlwaysVisible();
+                            if(response.labelAlwaysVisible() != null)
+                                customNameVisible = response.labelAlwaysVisible();
+
+                            if(customName != null) {
+                                final Optional<Object> optChatField = Optional.of(
+                                    WrappedChatComponent.fromChatMessage(
+                                        LegacyComponentSerializer.legacySection().serialize(customName)
+                                    )[0].getHandle()
+                                );
+
+                                dataWatcher.setObject(optChatFieldWatcher, optChatField);
+                            }
+
+                            if(customNameVisible != null) {
+                                dataWatcher.setObject(3, customNameVisible);
+                            }
+
+                            if(ClassUtils
+                                .classExists("com.comphenix.protocol.wrappers.WrappedDataValue")
+                            ) {
+                                final List<WrappedDataValue> wrappedDataValueList = new ArrayList<>();
+
+                                for(final WrappedWatchableObject entry : dataWatcher.getWatchableObjects()) {
+                                    if(entry == null) continue;
+
+                                    final WrappedDataWatcherObject watcherObject = entry.getWatcherObject();
+                                    wrappedDataValueList.add(
+                                        new WrappedDataValue(
+                                            watcherObject.getIndex(),
+                                            watcherObject.getSerializer(),
+                                            entry.getRawValue()
+                                        )
+                                    );
+                                }
+
+                                packet.getDataValueCollectionModifier().write(0, wrappedDataValueList);
+                            } else {
+                                packet.getWatchableCollectionModifier()
+                                    .write(0, dataWatcher.getWatchableObjects());
+                            }
+
+                            event.setPacket(packet);
+                        });
                 }
-
-                if(customName != null) {
-                    final Optional<Object> optChatField = Optional.of(
-                        WrappedChatComponent.fromChatMessage(
-                            LegacyComponentSerializer.legacySection().serialize(customName)
-                        )[0].getHandle()
-                    );
-
-                    dataWatcher.setObject(optChatFieldWatcher, optChatField);
-                }
-
-                if(customNameVisible != null) {
-                    dataWatcher.setObject(3, customNameVisible);
-                }
-
-                if(ClassUtils
-                    .classExists("com.comphenix.protocol.wrappers.WrappedDataValue")
-                ) {
-                    final List<WrappedDataValue> wrappedDataValueList = new ArrayList<>();
-
-                    for(final WrappedWatchableObject entry : dataWatcher.getWatchableObjects()) {
-                        if(entry == null) continue;
-
-                        final WrappedDataWatcherObject watcherObject = entry.getWatcherObject();
-                        wrappedDataValueList.add(
-                            new WrappedDataValue(
-                                watcherObject.getIndex(),
-                                watcherObject.getSerializer(),
-                                entry.getRawValue()
-                            )
-                        );
-                    }
-
-                    packet.getDataValueCollectionModifier().write(0, wrappedDataValueList);
-                } else {
-                    packet.getWatchableCollectionModifier()
-                        .write(0, dataWatcher.getWatchableObjects());
-                }
-
-                event.setPacket(packet);
-
             }
         });
     }

@@ -1,6 +1,7 @@
 package io.github.arcaneplugins.entitylabellib.bukkit;
 
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import net.kyori.adventure.text.Component;
@@ -30,7 +31,7 @@ public abstract class PacketInterceptor {
      * @param entity entity which the entity metadata packet being intercepted belongs to
      * @return label response from the packet interceptor implementation
      */
-    public abstract @Nonnull LabelResponse interceptEntityLabelPacket(
+    public abstract @Nonnull CompletableFuture<LabelResponse> interceptEntityLabelPacket(
         final @Nonnull Entity entity,
         final @Nonnull Player player
     );

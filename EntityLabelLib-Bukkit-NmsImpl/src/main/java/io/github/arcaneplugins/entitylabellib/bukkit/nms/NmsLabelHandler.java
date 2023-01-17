@@ -2,7 +2,6 @@ package io.github.arcaneplugins.entitylabellib.bukkit.nms;
 
 import io.github.arcaneplugins.entitylabellib.bukkit.LabelHandler;
 import io.github.arcaneplugins.entitylabellib.bukkit.PacketInterceptor;
-import io.github.arcaneplugins.entitylabellib.bukkit.PacketInterceptor.LabelResponse;
 import io.github.arcaneplugins.entitylabellib.bukkit.nms.util.ComponentUtils;
 import io.github.arcaneplugins.entitylabellib.bukkit.nms.util.EntityUtils;
 import io.netty.channel.ChannelDuplexHandler;
@@ -13,6 +12,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import javax.annotation.Nonnull;
 import net.kyori.adventure.text.Component;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
@@ -226,105 +226,126 @@ public class NmsLabelHandler extends LabelHandler implements Listener {
                 final Object message,
                 final ChannelPromise promise
             ) throws Exception {
+                final Runnable superWrite = () -> {
+                    try {
+                        super.write(context, message, promise);
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
+                };
+
                 if(!(message instanceof final ClientboundSetEntityDataPacket packet)) {
-                    super.write(context, message, promise);
+                    superWrite.run();
                     return;
                 }
 
                 final List<DataValue<?>> items = packet.packedItems();
 
                 if(items == null) {
-                    super.write(context, message, promise);
+                    superWrite.run();
                     return;
                 }
 
-                final Entity entity = EntityUtils.getBukkitEntityById(packet.id(), getPlugin());
+                final CompletableFuture<Entity> entityCf =
+                    EntityUtils.getBukkitEntityById(packet.id(), getPlugin());
 
-                if(entity == null) {
-                    super.write(context, message, promise);
-                    return;
-                }
-
-                if(!(entity instanceof final LivingEntity lentity)) {
-                    super.write(context, message, promise);
-                    return;
-                }
-
-                if(lentity.getType() == EntityType.PLAYER) {
-                    super.write(context, message, promise);
-                    return;
-                }
-
-                Component advCustomName = null;
-                Boolean customNameVisible = null;
-
-                for(final PacketInterceptor interceptor : getRegisteredPacketInterceptors()) {
-                    final LabelResponse response = interceptor.interceptEntityLabelPacket(
-                        entity,
-                        player
-                    );
-
-                    Objects.requireNonNull(response, "response");
-
-                    if(response.labelComponent() != null)
-                        advCustomName = response.labelComponent();
-
-                    if(response.labelAlwaysVisible() != null)
-                        customNameVisible = response.labelAlwaysVisible();
-                }
-
-                if(advCustomName == null && customNameVisible == null) {
-                    super.write(context, message, promise);
-                    return;
-                }
-
-                Integer idxNameComponent = null;
-                Integer idxNameVisible = null;
-
-                for (int i = 0; i < items.size(); i++) {
-                    final DataValue<?> item = items.get(i);
-                    if(item.id() == 2) idxNameComponent = i;
-                    if(item.id() == 3) idxNameVisible = i;
-                }
-
-                if(advCustomName != null) {
-                    final net.minecraft.network.chat.Component customNameNmsComponent =
-                        ComponentUtils.adventureToNmsComponent(advCustomName);
-
-                    SynchedEntityData.DataValue<?> dataValueComponent =
-                        new SynchedEntityData.DataItem<>(
-                            new EntityDataAccessor<>(
-                                2,
-                                EntityDataSerializers.OPTIONAL_COMPONENT
-                            ),
-                            Optional.of(customNameNmsComponent)
-                        ).value();
-
-                    if(idxNameComponent == null) {
-                        items.add(dataValueComponent);
-                    } else {
-                        items.set(idxNameComponent, dataValueComponent);
+                entityCf.whenComplete((entity, error) -> {
+                    if(error != null) {
+                        error.printStackTrace();
+                        superWrite.run();
+                        return;
                     }
-                }
 
-                if(customNameVisible != null) {
-                    SynchedEntityData.DataValue<Boolean> dataValueVisible =
-                        new SynchedEntityData.DataItem<>(
-                            new EntityDataAccessor<>(
-                                3,
-                                EntityDataSerializers.BOOLEAN
-                            ),
-                            customNameVisible
-                        ).value();
-
-                    if (idxNameVisible == null) {
-                        items.add(dataValueVisible);
-                    } else {
-                        items.set(idxNameVisible, dataValueVisible);
+                    if(entity == null) {
+                        superWrite.run();
+                        return;
                     }
-                }
 
-                super.write(context, message, promise);
+                    if(!(entity instanceof final LivingEntity lentity)) {
+                        superWrite.run();
+                        return;
+                    }
+
+                    if(lentity.getType() == EntityType.PLAYER) {
+                        superWrite.run();
+                        return;
+                    }
+
+                    for(final PacketInterceptor interceptor : getRegisteredPacketInterceptors()) {
+                        interceptor
+                            .interceptEntityLabelPacket(entity, player)
+                            .whenComplete((response, error2) -> {
+                                if(error2 != null) {
+                                    error2.printStackTrace();
+                                    return;
+                                }
+
+                                Objects.requireNonNull(response, "response");
+
+                                Component advCustomName = null;
+                                Boolean customNameVisible = null;
+
+                                if(response.labelComponent() != null)
+                                    advCustomName = response.labelComponent();
+
+                                if(response.labelAlwaysVisible() != null)
+                                    customNameVisible = response.labelAlwaysVisible();
+
+                                if(advCustomName == null && customNameVisible == null) {
+                                    superWrite.run();
+                                    return;
+                                }
+
+                                Integer idxNameComponent = null;
+                                Integer idxNameVisible = null;
+
+                                for (int i = 0; i < items.size(); i++) {
+                                    final DataValue<?> item = items.get(i);
+                                    if(item.id() == 2) idxNameComponent = i;
+                                    if(item.id() == 3) idxNameVisible = i;
+                                }
+
+                                if(advCustomName != null) {
+                                    final net.minecraft.network.chat.Component customNameNmsComponent =
+                                        ComponentUtils.adventureToNmsComponent(advCustomName);
+
+                                    SynchedEntityData.DataValue<?> dataValueComponent =
+                                        new SynchedEntityData.DataItem<>(
+                                            new EntityDataAccessor<>(
+                                                2,
+                                                EntityDataSerializers.OPTIONAL_COMPONENT
+                                            ),
+                                            Optional.of(customNameNmsComponent)
+                                        ).value();
+
+                                    if(idxNameComponent == null) {
+                                        items.add(dataValueComponent);
+                                    } else {
+                                        items.set(idxNameComponent, dataValueComponent);
+                                    }
+                                }
+
+                                if(customNameVisible != null) {
+                                    SynchedEntityData.DataValue<Boolean> dataValueVisible =
+                                        new SynchedEntityData.DataItem<>(
+                                            new EntityDataAccessor<>(
+                                                3,
+                                                EntityDataSerializers.BOOLEAN
+                                            ),
+                                            customNameVisible
+                                        ).value();
+
+                                    if (idxNameVisible == null) {
+                                        items.add(dataValueVisible);
+                                    } else {
+                                        items.set(idxNameVisible, dataValueVisible);
+                                    }
+                                }
+
+                                superWrite.run();
+                            });
+                    }
+                });
             }
 
         };
