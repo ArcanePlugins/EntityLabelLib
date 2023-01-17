@@ -46,13 +46,11 @@ public class EntityUtils {
         final int entityId,
         final Plugin plugin
     ) {
-        System.out.println("Fetching bukkit entity by ID...");
         final CompletableFuture<org.bukkit.entity.Entity> cf = new CompletableFuture<>();
 
-        getNmsEntityById(entityId, plugin).whenComplete((nmsEntity, error) -> {
-            cf.complete(nmsEntity.getBukkitEntity());
-            System.out.println("Fetched bukkit entity by ID.");
-        });
+        getNmsEntityById(entityId, plugin).whenComplete(
+            (nmsEntity, error) -> cf.complete(nmsEntity.getBukkitEntity())
+        );
 
         return cf;
     }
