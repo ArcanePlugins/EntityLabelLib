@@ -16,14 +16,14 @@ public class EntityLabelLib extends JavaPlugin {
     ) {
         Objects.requireNonNull(plugin, "plugin");
 
-        if(!disabledHandlerIds.contains(NmsLabelHandler.HANDLER_ID) &&
-            NmsLabelHandler.isCompatible()
-        ) {
-            return new NmsLabelHandler(plugin);
-        }
-
         if(!disabledHandlerIds.contains(ProtocolLibLabelHandler.HANDLER_ID) &&
             ProtocolLibLabelHandler.isCompatible()
+        ) {
+            return new ProtocolLibLabelHandler(plugin);
+        }
+
+        if(!disabledHandlerIds.contains(NmsLabelHandler.HANDLER_ID) &&
+            NmsLabelHandler.isCompatible()
         ) {
             return new NmsLabelHandler(plugin);
         }
