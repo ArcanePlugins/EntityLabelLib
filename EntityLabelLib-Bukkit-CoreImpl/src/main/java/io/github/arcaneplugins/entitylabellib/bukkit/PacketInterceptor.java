@@ -2,11 +2,11 @@ package io.github.arcaneplugins.entitylabellib.bukkit;
 
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 public abstract class PacketInterceptor {
 
@@ -14,7 +14,7 @@ public abstract class PacketInterceptor {
 
     //TODO javadoc
     public PacketInterceptor(
-        final @Nonnull LabelHandler labelHandler
+        final @NotNull LabelHandler labelHandler
     ) {
         Objects.requireNonNull(labelHandler, "labelHandler");
 
@@ -31,9 +31,9 @@ public abstract class PacketInterceptor {
      * @param entity entity which the entity metadata packet being intercepted belongs to
      * @return label response from the packet interceptor implementation
      */
-    public abstract @Nonnull CompletableFuture<LabelResponse> interceptEntityLabelPacket(
-        final @Nonnull Entity entity,
-        final @Nonnull Player player
+    public abstract @NotNull CompletableFuture<LabelResponse> interceptEntityLabelPacket(
+        final @NotNull Entity entity,
+        final @NotNull Player player
     );
 
     @SuppressWarnings("unused")
@@ -49,7 +49,7 @@ public abstract class PacketInterceptor {
     }
 
     //TODO javadoc
-    public @Nonnull LabelHandler getLabelHandler() {
+    public @NotNull LabelHandler getLabelHandler() {
         return labelHandler;
     }
 

@@ -32,6 +32,8 @@ import org.jetbrains.annotations.NotNull;
 
 public class ProtocolLibLabelHandler extends LabelHandler {
 
+    public static final String HANDLER_ID = "ProtocolLib";
+
     private ProtocolManager protocolManager = null;
 
     public ProtocolLibLabelHandler(
@@ -195,6 +197,11 @@ public class ProtocolLibLabelHandler extends LabelHandler {
 
     @Override
     public void unregisterListeners() {}
+
+    @Override
+    public @NotNull String getHandlerId() {
+        return HANDLER_ID;
+    }
 
     private ProtocolManager protocolManager() {
         return Objects.requireNonNull(protocolManager, "protocolManager");

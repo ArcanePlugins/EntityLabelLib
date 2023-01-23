@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import javax.annotation.Nonnull;
 import net.kyori.adventure.text.Component;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -35,6 +34,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
 public class NmsLabelHandler extends LabelHandler implements Listener {
+
+    public static final String HANDLER_ID = "Nms";
 
     private static final EntityDataAccessor<Optional<net.minecraft.network.chat.Component>> LABEL;
     private static final EntityDataAccessor<Boolean> LABEL_VISIBLE;
@@ -62,7 +63,7 @@ public class NmsLabelHandler extends LabelHandler implements Listener {
     private final String packetChannelHandlerName;
 
     public NmsLabelHandler(
-        final @Nonnull JavaPlugin plugin
+        final @NotNull JavaPlugin plugin
     ) {
         super(plugin);
         this.packetChannelHandlerName = plugin.getName() + "_EntityLabelLib_EntityMetadata";
@@ -135,9 +136,9 @@ public class NmsLabelHandler extends LabelHandler implements Listener {
     }
 
     private void sendEntityData(
-            @Nonnull final ServerPlayer playerHandle,
-            @Nonnull final net.minecraft.world.entity.Entity entityHandle,
-            @Nonnull final SynchedEntityData entityData
+            @NotNull final ServerPlayer playerHandle,
+            @NotNull final net.minecraft.world.entity.Entity entityHandle,
+            @NotNull final SynchedEntityData entityData
         ) {
         List<DataValue<?>> list = entityData.packDirty();
         if (list == null || list.isEmpty()) {
@@ -191,6 +192,11 @@ public class NmsLabelHandler extends LabelHandler implements Listener {
         Bukkit.getOnlinePlayers().forEach(this::removePacketListenerFromPipeline);
     }
 
+    @Override
+    public @NotNull String getHandlerId() {
+        return HANDLER_ID;
+    }
+
     /**
      * Listen for {@link PlayerJoinEvent} to add the packet listener to the pipelines of players
      * who are joining the server.
@@ -212,7 +218,7 @@ public class NmsLabelHandler extends LabelHandler implements Listener {
      * @param player player to modify the pipeline of
      */
     private void addPacketListenerToPipeline(
-        final @Nonnull Player player
+        final @NotNull Player player
     ) {
         Objects.requireNonNull(player, "player");
 
@@ -360,7 +366,7 @@ public class NmsLabelHandler extends LabelHandler implements Listener {
      * @param player player to modify the pipeline of
      */
     private void removePacketListenerFromPipeline(
-        final @Nonnull Player player
+        final @NotNull Player player
     ) {
         Objects.requireNonNull(player, "player");
 

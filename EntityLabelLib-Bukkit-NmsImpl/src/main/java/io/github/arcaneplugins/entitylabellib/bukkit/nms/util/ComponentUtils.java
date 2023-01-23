@@ -1,12 +1,12 @@
 package io.github.arcaneplugins.entitylabellib.bukkit.nms.util;
 
 import java.util.Objects;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Component.Serializer;
 import net.minecraft.network.chat.MutableComponent;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * This class contains utilities for using components, such as
@@ -27,7 +27,7 @@ public class ComponentUtils {
      * @return NMS MutableComponent object
      * @since 1.0.0
      */
-    public static @Nonnull MutableComponent adventureToNmsComponent(
+    public static @NotNull MutableComponent adventureToNmsComponent(
         final @Nullable net.kyori.adventure.text.Component advComp
     ) {
         if(advComp == null)

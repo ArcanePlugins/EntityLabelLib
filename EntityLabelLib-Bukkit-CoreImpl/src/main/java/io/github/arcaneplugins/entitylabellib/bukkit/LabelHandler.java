@@ -3,11 +3,11 @@ package io.github.arcaneplugins.entitylabellib.bukkit;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Objects;
-import javax.annotation.Nonnull;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
 
 @SuppressWarnings("unused")
 public abstract class LabelHandler {
@@ -15,7 +15,7 @@ public abstract class LabelHandler {
     private final JavaPlugin plugin;
 
     public LabelHandler(
-        final @Nonnull JavaPlugin plugin
+        final @NotNull JavaPlugin plugin
     ) {
         this.plugin = plugin;
     }
@@ -31,8 +31,8 @@ public abstract class LabelHandler {
      * @param labelAlwaysVisible  whether the label is always visible
      */
     public final void updateEntityLabel(
-        final @Nonnull Entity entity,
-        final @Nonnull Component labelComponent,
+        final @NotNull Entity entity,
+        final @NotNull Component labelComponent,
         final boolean labelAlwaysVisible
     ) {
         Objects.requireNonNull(entity, "entity");
@@ -53,10 +53,10 @@ public abstract class LabelHandler {
      * @param packetRecipient player to receive the packet
      */
     public abstract void updateEntityLabel(
-        final @Nonnull Entity entity,
-        final @Nonnull Component labelComponent,
+        final @NotNull Entity entity,
+        final @NotNull Component labelComponent,
         final boolean labelAlwaysVisible,
-        final @Nonnull Player packetRecipient
+        final @NotNull Player packetRecipient
     );
 
     /**
@@ -67,8 +67,8 @@ public abstract class LabelHandler {
      * @param labelComponent      component to set the label to
      */
     public final void updateEntityLabel(
-        final @Nonnull Entity entity,
-        final @Nonnull Component labelComponent
+        final @NotNull Entity entity,
+        final @NotNull Component labelComponent
     ) {
         Objects.requireNonNull(entity, "entity");
         Objects.requireNonNull(labelComponent, "labelComponent");
@@ -87,9 +87,9 @@ public abstract class LabelHandler {
      * @param packetRecipient player to receive the packet
      */
     public abstract void updateEntityLabel(
-        final @Nonnull Entity entity,
-        final @Nonnull Component labelComponent,
-        final @Nonnull Player packetRecipient
+        final @NotNull Entity entity,
+        final @NotNull Component labelComponent,
+        final @NotNull Player packetRecipient
     );
 
     /**
@@ -100,7 +100,7 @@ public abstract class LabelHandler {
      * @param labelAlwaysVisible whether the label is always visible
      */
     public final void updateEntityLabel(
-        final @Nonnull Entity entity,
+        final @NotNull Entity entity,
         final boolean labelAlwaysVisible
     ) {
         Objects.requireNonNull(entity, "entity");
@@ -119,9 +119,9 @@ public abstract class LabelHandler {
      * @param packetRecipient player to receive the packet
      */
     public abstract void updateEntityLabel(
-        final @Nonnull Entity entity,
+        final @NotNull Entity entity,
         final boolean labelAlwaysVisible,
-        final @Nonnull Player packetRecipient
+        final @NotNull Player packetRecipient
     );
 
     /**
@@ -133,7 +133,7 @@ public abstract class LabelHandler {
      * @param entity entity to send the empty packet for
      */
     public final void updateEntityLabel(
-        final @Nonnull Entity entity
+        final @NotNull Entity entity
     ) {
         Objects.requireNonNull(entity, "entity");
         entity.getWorld().getPlayers().forEach(player -> updateEntityLabel(entity, player));
@@ -149,19 +149,19 @@ public abstract class LabelHandler {
      * @param packetRecipient player to receive the packet
      */
     public abstract void updateEntityLabel(
-        final @Nonnull Entity entity,
-        final @Nonnull Player packetRecipient
+        final @NotNull Entity entity,
+        final @NotNull Player packetRecipient
     );
 
     public void registerInterceptor(
-        final @Nonnull PacketInterceptor packetInterceptor
+        final @NotNull PacketInterceptor packetInterceptor
     ) {
         if(getRegisteredPacketInterceptors().contains(packetInterceptor)) return;
         getRegisteredPacketInterceptors().add(packetInterceptor);
     }
 
     public void unregisterInterceptor(
-        final @Nonnull PacketInterceptor packetInterceptor
+        final @NotNull PacketInterceptor packetInterceptor
     ) {
         getRegisteredPacketInterceptors().remove(packetInterceptor);
     }
@@ -170,11 +170,13 @@ public abstract class LabelHandler {
 
     public abstract void unregisterListeners();
 
-    protected @Nonnull Collection<PacketInterceptor> getRegisteredPacketInterceptors() {
+    protected @NotNull Collection<PacketInterceptor> getRegisteredPacketInterceptors() {
         return registeredPacketInterceptors;
     }
 
-    protected @Nonnull JavaPlugin getPlugin() {
+    protected @NotNull JavaPlugin getPlugin() {
         return plugin;
     }
+
+    public abstract @NotNull String getHandlerId();
 }

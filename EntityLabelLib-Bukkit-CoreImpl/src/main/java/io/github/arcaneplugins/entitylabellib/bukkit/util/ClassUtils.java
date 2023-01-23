@@ -1,7 +1,7 @@
 package io.github.arcaneplugins.entitylabellib.bukkit.util;
 
 import java.util.Objects;
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
 
 public class ClassUtils {
 
@@ -10,7 +10,7 @@ public class ClassUtils {
     }
 
     public static boolean classExists(
-        final @Nonnull String classpath
+        final @NotNull String classpath
     ) {
         Objects.requireNonNull(classpath, "classpath");
 
